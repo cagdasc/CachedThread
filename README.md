@@ -1,8 +1,9 @@
 # CachedThread
-Class based **ExecutorServices** implementation. You can implement to Activity or your class.
+Class based **ExecutorServices** implementation and Async method capsulation library. You can implement **CachedThred** to
+Activity or your class and call your methods in thread not write some threaded codes.
 
-### Usage
-1- You need to implement **PoolHandler** interface and create **CachedThreadPool** instance.
+### CachedThread Usage
+1-You need to implement **PoolHandler** interface and create **CachedThreadPool** instance.
 ```java
 public abstract class BaseThreadActivity extends AppCompatActivity implements PoolHandler {
 
@@ -10,7 +11,7 @@ public abstract class BaseThreadActivity extends AppCompatActivity implements Po
     ...
 }
 ```
-2- Adjust your thread configurations.
+2-Adjust your thread configurations.
 ```java
         @Override
         public String getPoolName() {
@@ -38,7 +39,7 @@ public abstract class BaseThreadActivity extends AppCompatActivity implements Po
                     .build();
         }
 ```
-3- And open pool and close after your work was finished.
+3-And open pool and close after your work was finished.
 ```java
         @Override
         protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -57,7 +58,82 @@ public abstract class BaseThreadActivity extends AppCompatActivity implements Po
             return mCachedThreadPool;
         }
 ```
+### AsyncMethod Usage
+1-First you need to instante an AsyncMethod object.
+```java
+        public class MainActivity extends BaseThreadActivity {
 
+            private AsyncMethodCaller asyncMethodCaller;
+
+            @Override
+            protected void onCreate(Bundle savedInstanceState) {
+                super.onCreate(savedInstanceState);
+                setContentView(R.layout.activity_main);
+
+                asyncMethodCaller  = AsyncMethodCaller.of(this, getCachedThreadPool()
+                        .getExecutorService(this)).init();
+                ...
+        }
+```
+2-Mark your method which run in thread.
+```java
+        @AsyncMethod(id = 1001)
+        public void nonParametricMethod() {
+            for (int i = 0; i < 10; i++) {
+                Log.d("TAG", "do some work");
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        @AsyncMethod(id = 1002)
+        public void parametricMethod(String param1) {
+            for (int i = 0; i < 10; i++) {
+                Log.d("TAG", param1 + " do some work");
+                try {
+                    Thread.sleep(150);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+```
+3-After you can call methods like this.
+```java
+        asyncMethodCaller.callMethod(MainActivity.this, 1001).execute(new TaskCallback<BaseRestOutput>() {
+            @Override
+            public void onResult(BaseRestOutput baseRestOutput) {
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        methodCallResult.setText("Non param method finish");
+                    }
+                });
+
+            }
+        }); // Async call or call non-parametric execute()
+
+        try {
+            List<Object> params = new ArrayList<>();
+            params.add("Param1");
+            asyncMethodCaller.callMethod(MainActivity.this, 1002, params).get(); // Wait until finish
+            paramMethodCallResult.setText("Parametric method finish");
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
+```
+4-Do not forget clear the method cache for performance
+```java
+        @Override
+        protected void onStop() {
+            super.onStop();
+            asyncMethodCaller.destroy();
+        }
+```
 License
 -------
 
