@@ -61,7 +61,7 @@ public abstract class BaseThreadActivity extends AppCompatActivity implements Po
 License
 -------
 
-      Copyright 2016 Cagdas Caglak
+      Copyright 2018 Cagdas Caglak
 
       Licensed under the Apache License, Version 2.0 (the "License");
       you may not use this file except in compliance with the License.
