@@ -14,7 +14,6 @@ import com.cacaosd.cachedthread.model.output.BaseRestOutput;
 import com.cacaosd.sample.base.BaseThreadActivity;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 

@@ -43,7 +43,7 @@ public class AsyncMethodCaller {
         return new TaskWrapper<BaseRestOutput>(mExecutorService, callablePoolTask);
     }
 
-    private BaseRestOutput callableMethod(@NonNull final Object object, final int id, final List<Object> parameterList) throws Exception {
+    private BaseRestOutput callableMethod(@NonNull final Object object, final int id, final List<Object> parameterList) {
         MethodContainer methodContainer = sAsyncMethodProvider.getMethodCache().get(id);
         if (methodContainer == null)
             throw new MethodNotExistError("Method not exist. Id: " + id);
