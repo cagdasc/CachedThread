@@ -1,6 +1,7 @@
 package com.cacaosd.cachedthread.asyncmethod.processor;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.cacaosd.cachedthread.asyncmethod.exception.MethodCallException;
 import com.cacaosd.cachedthread.asyncmethod.exception.MethodNotExistError;
@@ -23,7 +24,7 @@ public class AsyncMethodCaller {
 
     }
 
-    public static AsyncMethodProvider of(@NonNull Object object, @NonNull ExecutorService mExecutorService) {
+    public static AsyncMethodProvider of(@NonNull Class<?> object, @NonNull ExecutorService mExecutorService) {
         AsyncMethodCaller asyncMethodCaller = new AsyncMethodCaller(mExecutorService);
         sAsyncMethodProvider = new AsyncMethodProvider(asyncMethodCaller, object);
         return sAsyncMethodProvider;
@@ -33,7 +34,7 @@ public class AsyncMethodCaller {
         return callMethod(object, id, null);
     }
 
-    public TaskWrapper<BaseRestOutput> callMethod(@NonNull final Object object, final int id, @NonNull final List<Object> parameterList) {
+    public TaskWrapper<BaseRestOutput> callMethod(@NonNull final Object object, final int id, @Nullable final List<Object> parameterList) {
         CallablePoolTask<BaseRestOutput> callablePoolTask = new CallablePoolTask<BaseRestOutput>() {
             @Override
             public BaseRestOutput onProcess() throws Exception {
@@ -43,12 +44,12 @@ public class AsyncMethodCaller {
         return new TaskWrapper<BaseRestOutput>(mExecutorService, callablePoolTask);
     }
 
-    private BaseRestOutput callableMethod(@NonNull final Object object, final int id, final List<Object> parameterList) throws Exception {
+    private BaseRestOutput callableMethod(@NonNull final Object object, final int id, final List<Object> parameterList) {
         MethodContainer methodContainer = sAsyncMethodProvider.getMethodCache().get(id);
         if (methodContainer == null)
             throw new MethodNotExistError("Method not exist. Id: " + id);
 
-        if (parameterList != null && parameterList.size() > 0) {
+        if (parameterList != null && !parameterList.isEmpty()) {
             CheckMethod.checkParametersType(methodContainer.getMethod(), parameterList);
             Object[] args = new Object[parameterList.size()];
             args = parameterList.toArray(args);

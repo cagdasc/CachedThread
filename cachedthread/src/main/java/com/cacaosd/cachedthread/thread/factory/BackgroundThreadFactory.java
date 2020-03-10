@@ -1,6 +1,6 @@
 package com.cacaosd.cachedthread.thread.factory;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;

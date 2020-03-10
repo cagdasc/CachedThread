@@ -1,13 +1,16 @@
 package com.cacaosd.sample.base;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.cacaosd.cachedthread.asyncmethod.processor.AsyncMethodCaller;
 import com.cacaosd.cachedthread.handler.PoolHandler;
 import com.cacaosd.cachedthread.thread.CachedThreadPool;
 import com.cacaosd.cachedthread.thread.ThreadConfiguration;
 import com.cacaosd.cachedthread.thread.factory.BackgroundThreadFactory;
+import com.cacaosd.sample.CallableTask;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -17,11 +20,14 @@ import java.util.concurrent.TimeUnit;
 public abstract class BaseThreadActivity extends AppCompatActivity implements PoolHandler {
 
     private CachedThreadPool mCachedThreadPool = CachedThreadPool.getInstance();
+    private AsyncMethodCaller asyncMethodCaller;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mCachedThreadPool.openNewPool(this);
+        asyncMethodCaller = AsyncMethodCaller.of(getAssociatedClass(), mCachedThreadPool
+                .getExecutorService(this)).init();
 
     }
 
@@ -31,8 +37,15 @@ public abstract class BaseThreadActivity extends AppCompatActivity implements Po
         mCachedThreadPool.closePool(this);
     }
 
-    public CachedThreadPool getCachedThreadPool() {
-        return mCachedThreadPool;
+
+    public abstract Class getAssociatedClass();
+
+    public void executeTask(CallableTask callableTask) {
+        mCachedThreadPool.executeTask(callableTask, this);
+    }
+
+    public AsyncMethodCaller getAsyncMethodCaller() {
+        return asyncMethodCaller;
     }
 
     @Override
@@ -59,5 +72,11 @@ public abstract class BaseThreadActivity extends AppCompatActivity implements Po
                 .setThreadFactory(new BackgroundThreadFactory())
                 .setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy())
                 .build();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        asyncMethodCaller.destroy();
     }
 }
