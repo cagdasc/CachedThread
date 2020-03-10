@@ -1,5 +1,5 @@
 # CachedThread
-Class based **ExecutorServices** implementation and Async method capsulation library. You can implement **CachedThred** to
+Class based **ExecutorServices** implementation and Async method capsulation library. You can implement **CachedThread** to
 Activity or your class and call your methods in thread not write some threaded codes.
 
 ### CachedThread Usage
